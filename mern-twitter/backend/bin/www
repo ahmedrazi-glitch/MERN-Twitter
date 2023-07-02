@@ -7,11 +7,20 @@
 var app = require('../app');
 // var debug = require('debug')('backend:server');
 var debug = require('debug')('backend:server');
+// const serverLogger = debug('backend:server');
+// const dbLogger = debug('backend:mongodb');
 var http = require('http');
-
+const mongoose = require('mongoose');
+const { mongoURI: db } = require('../config/keys.js');
 /**
+
+This code is to connect mongoose to MongoURI \
+
+
+
  * Get port from environment and store in Express.
  */
+
 
 // change the default port from 3000 to 5000:
 var port = normalizePort(process.env.PORT || '5000');
@@ -27,7 +36,19 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+ mongoose
+ .connect(db, { useNewUrlParser: true })
+ .then(() => {
+  // Use `debug` instead of `dbLogger` if you did not split the debug 
+  // console into `dbLogger` and `serverLogger` above. 
+  debug("Connected to MongoDB successfully");
+  server.listen(port);
+})
+// Use `debug` instead of `serverLogger` if you did not split the debug 
+// console into `dbLogger` and `serverLogger` above.
+.catch(err => debug(err));
+
+// server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
